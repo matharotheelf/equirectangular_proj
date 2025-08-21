@@ -13,7 +13,7 @@ class Panel:
         self.height = height
         self.geometry = geometry
 
-        self.vertices = self.generate_vertices()
+        self.equi_coordinates = self.generate_equi_coordinates()
 
     # Function to convert Cartesian coordinates to equirectangular
     def cartesian_to_equirectangular(self, coordinate):
@@ -145,10 +145,17 @@ class Panel:
 
         # Generate equirectangular coordinates from cartesian
         equi_coordinates = np.apply_along_axis(self.cartesian_to_equirectangular, axis=1, arr=transformed_coordinates)
-        return np.append(equi_coordinates, 0)/180
+        return equi_coordinates/180
 
-    def generate_vertices(self):
-        base_mesh_coordinates = self.generate_coordinates()
-        equi_coordinates = self.apply_transformations(base_mesh_coordinates)
+    def generate_equi_coordinates(self):
+        base_mesh_coordinate_rows = self.generate_coordinates()
 
-        return equi_coordinates.flatten()
+        equi_coordinate_rows = []
+
+        for coordinate_row in base_mesh_coordinate_rows:
+            # Convert each row of coordinates to equirectangular coordinates
+            equi_coordinates = self.apply_transformations(coordinate_row)
+
+            equi_coordinate_rows.append(equi_coordinates)
+
+        return equi_coordinate_rows
