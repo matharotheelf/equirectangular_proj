@@ -6,13 +6,19 @@ class Mesh:
         self.colour = panel.colour
         self.ctx = moderngl.get_context()
         self.triangles = self.generate_mesh(panel.equi_coordinates)
-
-        self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
-        self.vao = self.ctx.vertex_array(program, [(self.vbo, '3f 12x 8x', 'in_vertex')])
+        self.program = program
+        #
+        # self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
+        # self.vao = self.ctx.vertex_array(program, [(self.vbo, '3f 12x 8x', 'in_vertex')])
 
     def render(self):
-        self.vao.program['color'] = self.colour
-        self.vao.render()
+        for triangle in self.triangles:
+            vertices_buffer = triangle.tobytes()
+            vbo = self.ctx.buffer(vertices_buffer)
+            vao = self.ctx.vertex_array(self.program, [(vbo, '2f', 'in_vertex')])
+
+            vao.program['color'] = self.colour
+            vao.render()
 
     def generate_mesh(self, coordinate_rows):
         """
