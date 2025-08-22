@@ -15,13 +15,6 @@ from src.cube import Cube
 from src.octohedron import Octohedron
 from src.mesh import Mesh
 
-# pygame.init()
-# pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 4)
-# pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 1)
-# pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
-# pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, True)
-# window = pygame.display.set_mode((800, 800), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)
-
 class TriangleGeometry:
     def __init__(self):
         self.ctx = moderngl.get_context()
@@ -102,16 +95,3 @@ class Scene(mglw.WindowConfig):
             self.screenshot_active = False
 
 Scene.run()
-
-# while True:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#
-#             pygame.quit()
-#             sys.exit()
-#
-#     scene.render()
-#
-#     pygame.display.flip()
-#     scene.ctx.finish()
-#     pygame.image.save(window, "screenshot.jpeg")
