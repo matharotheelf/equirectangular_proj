@@ -31,7 +31,7 @@ class TriangleGeometry:
 
 class Scene(mglw.WindowConfig):
     gl_version = (4, 1)
-    window_size = (1600, 800)
+    window_size = (2000, 1000)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

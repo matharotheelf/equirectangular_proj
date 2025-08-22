@@ -27,23 +27,53 @@ class Mesh:
         :param coordinate_rows: List of coordinate rows.
         :return: None
         """
-
         triangle_mesh = []
 
         for row_index, row in enumerate(coordinate_rows[:-1]):
             next_row = coordinate_rows[row_index + 1]
 
             for column_index, coordinate in enumerate(row[:-1]):
-                right_coordinate = row[column_index + 1]
-                bottom_coordinate = next_row[column_index]
-
-                vertices = np.asarray([
-                    coordinate,
-                    right_coordinate,
-                    bottom_coordinate
-
-                ], dtype='f4').ravel()
-
-                triangle_mesh.append(vertices)
+                triangle_mesh.append(self.upper_triangle(coordinate, column_index, row, next_row))
+                triangle_mesh.append(self.lower_triangle(coordinate, column_index, row, next_row))
 
         return triangle_mesh
+
+    def upper_triangle(self, coordinate, column_index, row, next_row):
+        """
+        Generate mesh for upper triangle from coordinate rows.
+
+        :param coordinate_rows: List of coordinate rows.
+        :return: None
+        """
+
+        right_coordinate = row[column_index + 1]
+        bottom_right_coordinate = next_row[column_index + 1]
+
+        vertices = np.asarray([
+            coordinate,
+            right_coordinate,
+            bottom_right_coordinate
+
+        ], dtype='f4').ravel()
+
+        return vertices
+
+    def lower_triangle(self, coordinate, column_index, row, next_row):
+        """
+        Generate mesh for upper triangle from coordinate rows.
+
+        :param coordinate_rows: List of coordinate rows.
+        :return: None
+        """
+
+        bottom_coordinate = next_row[column_index]
+        bottom_right_coordinate = next_row[column_index + 1]
+
+        vertices = np.asarray([
+            coordinate,
+            bottom_coordinate,
+            bottom_right_coordinate
+
+        ], dtype='f4').ravel()
+
+        return vertices
