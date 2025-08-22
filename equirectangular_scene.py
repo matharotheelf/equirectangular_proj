@@ -6,19 +6,21 @@ import glm
 import moderngl
 import numpy as np
 import pygame
+import moderngl_window as mglw
+from moderngl_window import screenshot
+
 
 from src.panel import Panel
 from src.cube import Cube
 from src.octohedron import Octohedron
 from src.mesh import Mesh
-os.environ['SDL_WINDOWS_DPI_AWARENESS'] = 'permonitorv2'
 
-pygame.init()
-pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 4)
-pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 1)
-pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
-pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, True)
-pygame.display.set_mode((800, 800), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)
+# pygame.init()
+# pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 4)
+# pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 1)
+# pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
+# pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, True)
+# window = pygame.display.set_mode((800, 800), flags=pygame.OPENGL | pygame.DOUBLEBUF, vsync=True)
 
 class TriangleGeometry:
     def __init__(self):
@@ -34,9 +36,16 @@ class TriangleGeometry:
     def vertex_array(self, program):
         return self.ctx.vertex_array(program, [(self.vbo, '3f', 'in_vertex')])
 
-class Scene:
-    def __init__(self):
+class Scene(mglw.WindowConfig):
+    gl_version = (4, 1)
+    window_size = (1600, 800)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
         self.ctx = moderngl.create_context()
+
+        self.screenshot_active = True
 
         self.program = self.ctx.program(
             vertex_shader='''
@@ -82,20 +91,27 @@ class Scene:
         my_cube = Cube(colours=colours)
         self.meshes = [Mesh(self.program, panel) for panel in my_cube.panels]
 
-    def render(self):
+    def on_render(self, time: float, frametime: float):
         self.ctx.clear()
         self.ctx.enable(self.ctx.DEPTH_TEST)
 
         [mesh.render() for mesh in self.meshes]
 
-scene = Scene()
+        if self.screenshot_active:
+            screenshot.create(self.ctx.fbo)
+            self.screenshot_active = False
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+Scene.run()
 
-    scene.render()
-
-    pygame.display.flip()
+# while True:
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#
+#             pygame.quit()
+#             sys.exit()
+#
+#     scene.render()
+#
+#     pygame.display.flip()
+#     scene.ctx.finish()
+#     pygame.image.save(window, "screenshot.jpeg")

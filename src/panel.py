@@ -22,9 +22,9 @@ class Panel:
         :param coordinate:
         :return: np.array([lon, lat])
         """
-        lon = np.degrees(np.arctan2(coordinate[0], coordinate[2]))
+        lon = np.degrees(np.arctan2(coordinate[0], coordinate[2]))/180
         lat = np.degrees(np.arcsin(
-            np.clip(coordinate[1] / np.sqrt(coordinate[0] ** 2 + coordinate[1] ** 2 + coordinate[2] ** 2), -1, 1)))
+            np.clip(coordinate[1] / np.sqrt(coordinate[0] ** 2 + coordinate[1] ** 2 + coordinate[2] ** 2), -1, 1)))/90
         return np.array([lon, lat])
 
     # Function to return the rotated coordinates using euler
@@ -145,7 +145,7 @@ class Panel:
 
         # Generate equirectangular coordinates from cartesian
         equi_coordinates = np.apply_along_axis(self.cartesian_to_equirectangular, axis=1, arr=transformed_coordinates)
-        return equi_coordinates/180
+        return equi_coordinates
 
     def generate_equi_coordinates(self):
         base_mesh_coordinate_rows = self.generate_coordinates()

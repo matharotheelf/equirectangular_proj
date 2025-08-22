@@ -13,6 +13,7 @@ pillow = "*"
 pygame-ce = "*"
 pyglm = "*"
 moderngl = "*"
+moderngl-window = "*"
 
 [dev-packages]
 
