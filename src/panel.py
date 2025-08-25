@@ -3,12 +3,12 @@ from scipy.spatial.transform import Rotation
 import matplotlib.path as mpath
 
 class Panel:
-    PANEL_RESOLUTION=50
+    PANEL_RESOLUTION=20
     LATITUDE_RANGE=90
     LONGITUDE_RANGE=180
 
     def __init__(self, colour, angle, position, width, height, geometry):
-        self.colour = colour
+        self.base_colour = colour
         self.angle = angle
         self.position = position
         self.width = width

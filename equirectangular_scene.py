@@ -43,43 +43,28 @@ class Scene(mglw.WindowConfig):
 
         self.program = self.ctx.program(
             vertex_shader='''
-                #version 330 core
+                #version 330
 
-                uniform vec3 position;
-                uniform float scale;
+                in vec2 in_vert;
 
-                layout (location = 0) in vec3 in_vertex;
-                layout (location = 1) in vec3 in_normal;
-                layout (location = 2) in vec2 in_uv;
-
-                out vec3 v_vertex;
-                out vec3 v_normal;
-                out vec2 v_uv;
+                in vec4 in_color;
+                out vec4 v_color;    // Goes to the fragment shader
 
                 void main() {
-                    v_vertex = in_vertex;
-                    v_normal = in_normal;
-                    v_uv = in_uv;
-
-                    gl_Position = vec4(v_vertex, 1.0);
+                    gl_Position = vec4(in_vert, 0.0, 1.0);
+                    v_color = in_color;
                 }
             ''',
             fragment_shader='''
-                #version 330 core
+                #version 330
 
-                uniform vec3 color;
-
-                in vec3 v_vertex;
-                in vec3 v_normal;
-                in vec2 v_uv;
-
-                layout (location = 0) out vec4 out_color;
+                in vec4 v_color;
+                out vec4 f_color;
 
                 void main() {
-                    out_color = vec4(color, 1.0);
+                    f_color = vec4(v_color);
                 }
-            ''',
-        )
+            ''',        )
 
         colours = []
 
