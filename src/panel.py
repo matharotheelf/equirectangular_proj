@@ -3,7 +3,9 @@ from scipy.spatial.transform import Rotation
 import matplotlib.path as mpath
 
 class Panel:
-    PANEL_RESOLUTION=50
+    PANEL_RESOLUTION=20
+    LATITUDE_RANGE=90
+    LONGITUDE_RANGE=180
 
     def __init__(self, colour, angle, position, width, height, geometry):
         self.colour = colour
@@ -22,9 +24,9 @@ class Panel:
         :param coordinate:
         :return: np.array([lon, lat])
         """
-        lon = np.degrees(np.arctan2(coordinate[0], coordinate[2]))/180
+        lon = np.degrees(np.arctan2(coordinate[0], coordinate[2]))/self.LONGITUDE_RANGE
         lat = np.degrees(np.arcsin(
-            np.clip(coordinate[1] / np.sqrt(coordinate[0] ** 2 + coordinate[1] ** 2 + coordinate[2] ** 2), -1, 1)))/90
+            np.clip(coordinate[1] / np.sqrt(coordinate[0] ** 2 + coordinate[1] ** 2 + coordinate[2] ** 2), -1, 1)))/self.LATITUDE_RANGE
         return np.array([lon, lat])
 
     # Function to return the rotated coordinates using euler
