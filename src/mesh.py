@@ -47,46 +47,8 @@ class Mesh:
             next_row = coordinate_rows[row_index + 1]
 
             for column_index, coordinate in enumerate(row[:-1]):
-                right_coordinate = row[column_index + 1]
-                bottom_right_coordinate = next_row[column_index + 1]
-                bottom_coordinate = next_row[column_index]
-
-                close_edge_coordinate = self.closest_edge_coordinate(coordinate)
-                centre_line_coordinate = self.centre_line_coordinate(coordinate)
-
-                is_split_horizontal = self.is_split_by_edge(coordinate, right_coordinate, close_edge_coordinate, centre_line_coordinate)
-                is_split_bottom_split = self.is_split_by_edge(coordinate, bottom_coordinate, close_edge_coordinate, centre_line_coordinate)
-
-                if is_split_horizontal and is_split_bottom_split:
-                    print("Coordinate not rendered as split by both edges")
-                elif is_split_horizontal:
-                    # render two squares across right side
-                    bottom_edge_coordinate = self.closest_edge_coordinate(bottom_coordinate)
-
-                    triangle_mesh.append(self.triangle(coordinate, close_edge_coordinate, bottom_edge_coordinate))
-                    triangle_mesh.append(self.triangle(coordinate, bottom_coordinate, bottom_edge_coordinate))
-
-                    right_edge_coordinate = self.closest_edge_coordinate(right_coordinate)
-                    bottom_right_edge_coordinate = self.closest_edge_coordinate(bottom_right_coordinate)
-
-                    triangle_mesh.append(self.triangle(right_coordinate, right_edge_coordinate, bottom_right_edge_coordinate))
-                    triangle_mesh.append(self.triangle(right_coordinate, bottom_right_coordinate, bottom_right_edge_coordinate))
-                elif is_split_bottom_split:
-                    # render two squares across bottom side
-                    right_edge_coordinate = self.closest_edge_coordinate(right_coordinate)
-
-                    triangle_mesh.append(self.triangle(coordinate, close_edge_coordinate, right_edge_coordinate))
-                    triangle_mesh.append(self.triangle(coordinate, right_coordinate, right_edge_coordinate))
-
-                    bottom_edge_coordinate = self.closest_edge_coordinate(bottom_coordinate)
-                    bottom_right_edge_coordinate = self.closest_edge_coordinate(bottom_right_coordinate)
-
-                    triangle_mesh.append(self.triangle(bottom_edge_coordinate, right_edge_coordinate, bottom_right_edge_coordinate))
-                    triangle_mesh.append(self.triangle(bottom_edge_coordinate, bottom_right_coordinate, bottom_right_edge_coordinate))
-                else:
-                    triangle_mesh.append(self.triangle(coordinate, right_coordinate, bottom_right_coordinate))
-                    triangle_mesh.append(self.triangle(coordinate, bottom_coordinate, bottom_right_coordinate))
-
+                coordinate_triangles = self.generate_triangles_for_coordinate(coordinate, row, next_row, column_index)
+                triangle_mesh.extend(coordinate_triangles)
         return triangle_mesh
 
     def triangle(self, coordinate, horizontal_coordinate, vertical_coordinate):
@@ -144,3 +106,53 @@ class Mesh:
         """
 
         return np.array([ 0, coordinate[1] ])
+
+    def generate_triangles_for_coordinate(self, coordinate, row, next_row, column_index):
+        right_coordinate = row[column_index + 1]
+        bottom_right_coordinate = next_row[column_index + 1]
+        bottom_coordinate = next_row[column_index]
+
+        close_edge_coordinate = self.closest_edge_coordinate(coordinate)
+        centre_line_coordinate = self.centre_line_coordinate(coordinate)
+
+        is_split_horizontal = self.is_split_by_edge(coordinate, right_coordinate, close_edge_coordinate, centre_line_coordinate)
+        is_split_bottom_split = self.is_split_by_edge(coordinate, bottom_coordinate, close_edge_coordinate, centre_line_coordinate)
+
+        if is_split_horizontal and is_split_bottom_split:
+            print("Coordinate not rendered as split by both edges")
+        elif is_split_horizontal:
+            return self.horizontal_split_squares(coordinate, right_coordinate, bottom_coordinate, bottom_right_coordinate, close_edge_coordinate)
+        elif is_split_bottom_split:
+            return self.vertical_split_squares(coordinate, right_coordinate, bottom_coordinate, bottom_right_coordinate, close_edge_coordinate)
+        else:
+            return self.no_split_square(coordinate, right_coordinate, bottom_coordinate, bottom_right_coordinate)
+
+    def horizontal_split_squares(self, coordinate, right_coordinate, bottom_coordinate, bottom_right_coordinate, close_edge_coordinate):
+        bottom_edge_coordinate = self.closest_edge_coordinate(bottom_coordinate)
+        right_edge_coordinate = self.closest_edge_coordinate(right_coordinate)
+        bottom_right_edge_coordinate = self.closest_edge_coordinate(bottom_right_coordinate)
+
+        return [
+            self.triangle(coordinate, bottom_coordinate, bottom_edge_coordinate),
+            self.triangle(coordinate, close_edge_coordinate, bottom_edge_coordinate),
+            self.triangle(right_coordinate, right_edge_coordinate, bottom_right_edge_coordinate),
+            self.triangle(right_coordinate, bottom_right_coordinate, bottom_right_edge_coordinate)
+        ]
+
+    def vertical_split_squares(self, coordinate, right_coordinate, bottom_coordinate, bottom_right_coordinate, close_edge_coordinate):
+        right_edge_coordinate = self.closest_edge_coordinate(right_coordinate)
+        bottom_edge_coordinate = self.closest_edge_coordinate(bottom_coordinate)
+        bottom_right_edge_coordinate = self.closest_edge_coordinate(bottom_right_coordinate)
+
+        return [
+            self.triangle(coordinate, close_edge_coordinate, right_edge_coordinate),
+            self.triangle(coordinate, right_coordinate, right_edge_coordinate),
+            self.triangle(bottom_edge_coordinate, right_edge_coordinate, bottom_right_edge_coordinate),
+            self.triangle(bottom_edge_coordinate, bottom_right_coordinate, bottom_right_edge_coordinate)
+        ]
+
+    def no_split_square(self, coordinate, right_coordinate, bottom_coordinate, bottom_right_coordinate):
+        return [
+            self.triangle(coordinate, right_coordinate, bottom_right_coordinate),
+            self.triangle(coordinate, bottom_coordinate, bottom_right_coordinate)
+        ]
