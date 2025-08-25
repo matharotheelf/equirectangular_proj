@@ -49,8 +49,6 @@ class Mesh:
                     print("Coordinate not rendered as split by both edges")
                 elif is_split_horizontal:
                     # render two squares across right side
-                    print("Split by right edge")
-
                     bottom_edge_coordinate = self.closest_edge_coordinate(bottom_coordinate)
 
                     triangle_mesh.append(self.triangle(coordinate, close_edge_coordinate, bottom_edge_coordinate))
@@ -62,9 +60,17 @@ class Mesh:
                     triangle_mesh.append(self.triangle(right_coordinate, right_edge_coordinate, bottom_right_edge_coordinate))
                     triangle_mesh.append(self.triangle(right_coordinate, bottom_right_coordinate, bottom_right_edge_coordinate))
                 elif is_split_bottom_split:
-                    print("Split by bottom edge")
+                    # render two squares across bottom side
+                    right_edge_coordinate = self.closest_edge_coordinate(right_coordinate)
 
-                    # render two trianles across bottom
+                    triangle_mesh.append(self.triangle(coordinate, close_edge_coordinate, right_edge_coordinate))
+                    triangle_mesh.append(self.triangle(coordinate, right_coordinate, right_edge_coordinate))
+
+                    bottom_edge_coordinate = self.closest_edge_coordinate(bottom_coordinate)
+                    bottom_right_edge_coordinate = self.closest_edge_coordinate(bottom_right_coordinate)
+
+                    triangle_mesh.append(self.triangle(bottom_edge_coordinate, right_edge_coordinate, bottom_right_edge_coordinate))
+                    triangle_mesh.append(self.triangle(bottom_edge_coordinate, bottom_right_coordinate, bottom_right_edge_coordinate))
                 else:
                     triangle_mesh.append(self.triangle(coordinate, right_coordinate, bottom_right_coordinate))
                     triangle_mesh.append(self.triangle(coordinate, bottom_coordinate, bottom_right_coordinate))
