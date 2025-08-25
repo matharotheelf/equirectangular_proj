@@ -1,5 +1,6 @@
 import moderngl
 import numpy as np
+import math
 
 class Mesh:
     WIDTH_PLOT = 1
@@ -9,17 +10,28 @@ class Mesh:
         self.ctx = moderngl.get_context()
         self.triangles = self.generate_mesh(panel.equi_coordinates)
         self.program = program
+        self.square_count = math.ceil(len(self.triangles) / 2)
         #
         # self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
         # self.vao = self.ctx.vertex_array(program, [(self.vbo, '3f 12x 8x', 'in_vertex')])
 
     def render(self):
-        for triangle in self.triangles:
+        for index, triangle in enumerate(self.triangles):
             vertices_buffer = triangle.tobytes()
             vbo = self.ctx.buffer(vertices_buffer)
             vao = self.ctx.vertex_array(self.program, [(vbo, '2f', 'in_vertex')])
 
-            vao.program['color'] = self.colour
+            square_index = math.ceil((index + 1) / 2)
+            partial_index = square_index / self.square_count
+
+            vertex_colour = (
+                (partial_index + self.colour[0])%1,
+                (partial_index/100 + self.colour[1])%1,
+                (partial_index/100 + self.colour[2])%1
+            )
+
+
+            vao.program['color'] = vertex_colour
             vao.render()
 
     def generate_mesh(self, coordinate_rows):

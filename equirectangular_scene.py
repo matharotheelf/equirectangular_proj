@@ -1,6 +1,7 @@
 import math
 import os
 import sys
+import random
 
 import glm
 import moderngl
@@ -79,7 +80,15 @@ class Scene(mglw.WindowConfig):
                 }
             ''',
         )
-        colours = [(1.0, 0.0, 0.0), (1.0, 1.0, 0.0), (0.0, 1.0, 1.0), (1.0, 0.0, 1.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
+
+        colours = []
+
+        for _index in range(6):
+            currentColourShiftR = random.random();
+            currentColourShiftG = random.random();
+            currentColourShiftB = random.random();
+
+            colours.append((currentColourShiftR, currentColourShiftG, currentColourShiftB))
 
         my_cube = Cube(colours=colours)
         self.meshes = [Mesh(self.program, panel) for panel in my_cube.panels]
