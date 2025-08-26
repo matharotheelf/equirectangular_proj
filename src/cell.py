@@ -9,10 +9,7 @@ class Cell:
     def __init__(self, coordinate, row, next_row, column_index, row_index, mesh):
         self.base_colour = mesh.base_colour
         self.alpha = mesh.alpha
-        self.row_index =  row_index
-        self.column_index = column_index
-        self.row = row
-        self.next_row = next_row
+
         self.coordinate = coordinate
         
         self.right_coordinate = row[column_index + 1]
@@ -24,6 +21,11 @@ class Cell:
 
         self.is_split_horizontal = self.is_split_by_edge(self.right_coordinate)
         self.is_split_bottom = self.is_split_by_edge(self.bottom_coordinate)
+
+        if self.is_split_bottom or self.is_split_horizontal:
+            self.bottom_edge_coordinate = self.closest_edge_coordinate(self.bottom_coordinate)
+            self.right_edge_coordinate = self.closest_edge_coordinate(self.right_coordinate)
+            self.bottom_right_edge_coordinate = self.closest_edge_coordinate(self.bottom_right_coordinate)
 
         self.colour = self.coordinate_colour(row_index, column_index)
 
@@ -94,10 +96,6 @@ class Cell:
             return self.no_split_square()
 
     def horizontal_split_squares(self):
-        self.bottom_edge_coordinate = self.closest_edge_coordinate(self.bottom_coordinate)
-        self.right_edge_coordinate = self.closest_edge_coordinate(self.right_coordinate)
-        self.bottom_right_edge_coordinate = self.closest_edge_coordinate(self.bottom_right_coordinate)
-
         return [
             self.triangle(self.coordinate, self.bottom_coordinate, self.bottom_edge_coordinate),
             self.triangle(self.coordinate, self.close_edge_coordinate, self.bottom_edge_coordinate),
@@ -106,10 +104,6 @@ class Cell:
         ]
 
     def vertical_split_squares(self):
-        right_edge_coordinate = self.closest_edge_coordinate(self.right_coordinate)
-        bottom_edge_coordinate = self.closest_edge_coordinate(self.bottom_coordinate)
-        bottom_right_edge_coordinate = self.closest_edge_coordinate(self.bottom_right_coordinate)
-
         return [
             self.triangle(self.coordinate, self.close_edge_coordinate, self.right_edge_coordinate),
             self.triangle(self.coordinate, self.right_coordinate, self.right_edge_coordinate),
