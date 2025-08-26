@@ -2,6 +2,8 @@ import moderngl
 import numpy as np
 import math
 
+from src.cell import Cell
+
 class Mesh:
     WIDTH_PLOT = 1
     MIDDLE_PLOT = 0
@@ -35,9 +37,9 @@ class Mesh:
             next_row = coordinate_rows[row_index + 1]
 
             for column_index, coordinate in enumerate(row[:-1]):
-                coordinate_colour = self.coordinate_colour(row_index, column_index)
+                coordinate_cell = Cell(coordinate, row, next_row, column_index, row_index, self)
+                coordinate_triangles = coordinate_cell.generate_triangles()
 
-                coordinate_triangles = self.generate_triangles_for_coordinate(coordinate, row, next_row, column_index, coordinate_colour)
                 if coordinate_triangles is not None:
                     triangle_mesh.extend(coordinate_triangles)
         return triangle_mesh

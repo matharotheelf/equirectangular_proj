@@ -93,7 +93,7 @@ class Scene(mglw.WindowConfig):
         self.ctx.gc()
         self.ctx.enable(self.ctx.DEPTH_TEST)
 
-        print(f"Time: {time}, Frame Time: {frametime}")
+        # print(f"Time: {time}, Frame Time: {frametime}")
 
         for mesh in self.meshes:
             mesh.render(time)
