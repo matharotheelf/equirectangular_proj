@@ -31,13 +31,15 @@ class TriangleGeometry:
         return self.ctx.vertex_array(program, [(self.vbo, '3f', 'in_vertex')])
 
 class Scene(mglw.WindowConfig):
-    gl_version = (4, 1)
+    gl_version = (3, 3)
     window_size = (2000, 1000)
+    aspect_ratio = 2
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.ctx = moderngl.create_context()
+        self.ctx.gc_mode = 'context_gc'
 
         self.screenshot_active = True
 
@@ -46,13 +48,20 @@ class Scene(mglw.WindowConfig):
                 #version 330
 
                 in vec2 in_vert;
+                
+                uniform float time = 0.0;
 
                 in vec4 in_color;
                 out vec4 v_color;    // Goes to the fragment shader
 
                 void main() {
                     gl_Position = vec4(in_vert, 0.0, 1.0);
-                    v_color = in_color;
+
+                    float red = mod((in_color[0] + time), 1.0);
+                    float green = mod((in_color[1] + time), 1.0); 
+                    float blue = mod((in_color[2] + time), 1.0);
+
+                    v_color = vec4(red, green, blue, in_color[3]);
                 }
             ''',
             fragment_shader='''
@@ -80,12 +89,17 @@ class Scene(mglw.WindowConfig):
 
     def on_render(self, time: float, frametime: float):
         self.ctx.clear()
+        self.ctx.clear_samplers()
+        self.ctx.gc()
         self.ctx.enable(self.ctx.DEPTH_TEST)
 
-        [mesh.render() for mesh in self.meshes]
+        print(f"Time: {time}, Frame Time: {frametime}")
 
-        if self.screenshot_active:
-            screenshot.create(self.ctx.fbo)
-            self.screenshot_active = False
+        for mesh in self.meshes:
+            mesh.render(time)
+        #
+        # if self.screenshot_active:
+        #     screenshot.create(self.ctx.fbo)
+        #     self.screenshot_active = False
 
 Scene.run()

@@ -3,7 +3,7 @@ from scipy.spatial.transform import Rotation
 import matplotlib.path as mpath
 
 class Panel:
-    PANEL_RESOLUTION=20
+    PANEL_RESOLUTION=10
     LATITUDE_RANGE=90
     LONGITUDE_RANGE=180
 

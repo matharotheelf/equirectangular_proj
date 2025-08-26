@@ -12,11 +12,13 @@ class Mesh:
         self.triangles = self.generate_mesh(panel.equi_coordinates)
         self.program = program
 
-    def render(self):
+    def render(self, currentTime):
         for index, triangle in enumerate(self.triangles):
             vertices_buffer = triangle.tobytes()
             vbo = self.ctx.buffer(vertices_buffer)
             vao = self.ctx.vertex_array(self.program, [vbo.bind('in_vert', 'in_color', layout='2f 4f')])
+
+            vao.program['time'] = currentTime / 10.0
             vao.render()
 
     def generate_mesh(self, coordinate_rows):
@@ -35,7 +37,8 @@ class Mesh:
                 coordinate_colour = self.coordinate_colour(row_index, column_index)
 
                 coordinate_triangles = self.generate_triangles_for_coordinate(coordinate, row, next_row, column_index, coordinate_colour)
-                triangle_mesh.extend(coordinate_triangles)
+                if coordinate_triangles is not None:
+                    triangle_mesh.extend(coordinate_triangles)
         return triangle_mesh
 
     def triangle(self, coordinate, horizontal_coordinate, vertical_coordinate, colour):
