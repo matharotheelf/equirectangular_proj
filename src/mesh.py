@@ -4,6 +4,7 @@ import math
 
 class Mesh:
     WIDTH_PLOT = 1
+    MIDDLE_PLOT = 0
 
     def __init__(self, program, panel):
         self.base_colour = panel.base_colour
@@ -95,7 +96,7 @@ class Mesh:
         :return: None
         """
 
-        return np.array([ 0, coordinate[1] ])
+        return np.array([ self.MIDDLE_PLOT, coordinate[1] ])
 
     def generate_triangles_for_coordinate(self, coordinate, row, next_row, column_index, colour):
         right_coordinate = row[column_index + 1]
