@@ -11,10 +11,20 @@ class Cell:
         self.alpha = mesh.alpha
 
         self.coordinate = coordinate
+        self.primary_colour = self.coordinate_colour(row_index, column_index)
+        self.primary_coord_and_colour = (self.coordinate, self.primary_colour)
         
         self.right_coordinate = row[column_index + 1]
+        self.right_colour = self.coordinate_colour(row_index, column_index + 1)
+        self.right_coord_and_colour = (self.right_coordinate, self.right_colour)
+
         self.bottom_right_coordinate = next_row[column_index + 1]
+        self.bottom_right_colour = self.coordinate_colour(row_index + 1, column_index + 1)
+        self.bottom_right_coord_and_colour = (self.bottom_right_coordinate, self.bottom_right_colour)
+
         self.bottom_coordinate = next_row[column_index]
+        self.bottom_colour = self.coordinate_colour(row_index + 1, column_index)
+        self.bottom_coord_and_colour = (self.bottom_coordinate, self.bottom_colour)
 
         self.close_edge_coordinate = self.closest_edge_coordinate(coordinate)
         self.centre_line_coordinate = self.centre_line_coordinate()
@@ -27,21 +37,40 @@ class Cell:
             self.right_edge_coordinate = self.closest_edge_coordinate(self.right_coordinate)
             self.bottom_right_edge_coordinate = self.closest_edge_coordinate(self.bottom_right_coordinate)
 
+            self.bottom_edge_colour = (self.primary_colour + self.bottom_colour) / 2
+            self.close_edge_colour = (self.primary_colour + self.right_colour) / 2
+            self.bottom_right_edge_colour = (self.right_colour + self.bottom_right_colour) / 2
+            self.right_edge_colour = (self.primary_colour + self.right_colour) / 2
+
+            self.bottom_edge_coord_and_colour = (self.bottom_edge_coordinate, self.bottom_edge_colour)
+            self.close_edge_coord_and_colour = (self.close_edge_coordinate, self.close_edge_colour)
+            self.bottom_right_edge_coord_and_colour = (self.bottom_right_edge_coordinate, self.bottom_right_edge_colour)
+            self.right_edge_coord_and_colour = (self.right_edge_coordinate, self.right_edge_colour)
+
         self.colour = self.coordinate_colour(row_index, column_index)
 
-    def triangle(self, current_coordinate, horizontal_coordinate, vertical_coordinate):
+    def triangle(self, current_coord_and_colour, next_coord_and_colour, vert_coord_and_colour):
         """
         Generate mesh for upper triangle from coordinate rows.
 
         :param coordinate_rows: List of coordinate rows.
         :return: None
         """
-        colour_r, colour_g, colour_b, colour_a = self.colour
+        current_colour_r, current_colour_g, current_colour_b, current_colour_a = current_coord_and_colour[1]
+        next_colour_r, next_colour_g, next_colour_b, next_colour_a = next_coord_and_colour[1]
+        vert_colour_r, vert_colour_g, vert_colour_b, vert_colour_a = vert_coord_and_colour[1]
+
+        current_coord_x, current_coord_y = current_coord_and_colour[0]
+        next_coord_x, next_coord_y = next_coord_and_colour[0]
+        vert_coord_x, vert_coord_y = vert_coord_and_colour[0]
 
         vertices = np.asarray([
-            current_coordinate[0], current_coordinate[1], colour_r, colour_g, colour_b, colour_a,
-            horizontal_coordinate[0], horizontal_coordinate[1], colour_r, colour_g, colour_b, colour_a,
-            vertical_coordinate[0], vertical_coordinate[1], colour_r, colour_g, colour_b, colour_a
+            current_coord_x, current_coord_y,
+            current_colour_r, current_colour_g, current_colour_b, current_colour_a,
+            next_coord_x, next_coord_y,
+            next_colour_r, next_colour_g, next_colour_b, next_colour_a,
+            vert_coord_x, vert_coord_y,
+            vert_colour_r, vert_colour_g, vert_colour_b, vert_colour_a
         ], dtype='f4').ravel()
 
         return vertices
@@ -97,31 +126,71 @@ class Cell:
 
     def horizontal_split_squares(self):
         return [
-            self.triangle(self.coordinate, self.bottom_coordinate, self.bottom_edge_coordinate),
-            self.triangle(self.coordinate, self.close_edge_coordinate, self.bottom_edge_coordinate),
-            self.triangle(self.right_coordinate, self.right_edge_coordinate, self.bottom_right_edge_coordinate),
-            self.triangle(self.right_coordinate, self.bottom_right_coordinate, self.bottom_right_edge_coordinate)
+            self.triangle(
+                self.primary_coord_and_colour, 
+                self.bottom_coord_and_colour,
+                self.bottom_edge_coord_and_colour
+            ),
+            self.triangle(
+                self.primary_coord_and_colour, 
+                self.close_edge_coord_and_colour, 
+                self.bottom_edge_coord_and_colour,
+            ),
+            self.triangle(
+               self.right_coord_and_colour,
+               self.right_edge_coord_and_colour,
+               self.bottom_right_edge_coord_and_colour
+            ),
+            self.triangle(
+                self.right_coord_and_colour,
+                self.bottom_right_coord_and_colour,
+                self.bottom_right_edge_coord_and_colour
+            )
         ]
 
     def vertical_split_squares(self):
         return [
-            self.triangle(self.coordinate, self.close_edge_coordinate, self.right_edge_coordinate),
-            self.triangle(self.coordinate, self.right_coordinate, self.right_edge_coordinate),
-            self.triangle(self.bottom_edge_coordinate, self.right_edge_coordinate, self.bottom_right_edge_coordinate),
-            self.triangle(self.bottom_edge_coordinate, self.bottom_right_coordinate, self.bottom_right_edge_coordinate)
+            self.triangle(
+                self.primary_coord_and_colour,
+                self.close_edge_coord_and_colour,
+                self.right_edge_coord_and_colour
+            ),
+            self.triangle(
+                self.primary_coord_and_colour,
+                self.right_coord_and_colour,
+                self.right_edge_coord_and_colour
+            ),
+            self.triangle(
+                self.bottom_coord_and_colour,
+                self.bottom_edge_coord_and_colour,
+                self.bottom_right_edge_coord_and_colour
+            ),
+            self.triangle(
+                self.bottom_coord_and_colour,
+                self.bottom_right_coord_and_colour,
+                self.bottom_right_edge_coord_and_colour
+            )
         ]
 
     def no_split_square(self):
         return [
-            self.triangle(self.coordinate, self.right_coordinate, self.bottom_right_coordinate),
-            self.triangle(self.coordinate, self.bottom_coordinate, self.bottom_right_coordinate)
+            self.triangle(
+                self.primary_coord_and_colour,
+                self.right_coord_and_colour,
+                self.bottom_right_coord_and_colour
+            ),
+            self.triangle(
+                self.primary_coord_and_colour,
+                self.bottom_coord_and_colour, 
+                self.bottom_right_coord_and_colour
+            )
         ]
 
     def coordinate_colour(self, horizontal_index, vertical_index):
         return np.array([
-            (horizontal_index/100 + vertical_index/50 + self.base_colour[0])%1,
-            (horizontal_index/100  + vertical_index/50 + self.base_colour[1])%1,
-            (horizontal_index/100 + vertical_index/50 + self.base_colour[2])%1,
+            (horizontal_index/40 + vertical_index/20 + self.base_colour[0])%1,
+            (horizontal_index/40  + vertical_index/20 + self.base_colour[1])%1,
+            (horizontal_index/40 + vertical_index/20 + self.base_colour[2])%1,
             self.alpha
         ])
 
