@@ -10,7 +10,9 @@ class RenderMode(Enum):
 class Cell:
     WIDTH_PLOT = 1
     MIDDLE_PLOT = 0
-    CURRENT_RENDER_MODE = RenderMode.SMOOTH
+    CURRENT_RENDER_MODE = RenderMode.PIXELATED
+    HORIZONTAL_COLOUR_MULTIPLIER = 5
+    VERTICAL_COLOUR_MULTIPLIER = 1
 
     def __init__(self, coordinate, row, next_row, column_index, row_index, mesh):
         self.base_colour = mesh.base_colour
@@ -80,7 +82,6 @@ class Cell:
         self.bottom_edge_coordinate = self.closest_edge_coordinate(self.bottom_coordinate)
         self.right_edge_coordinate = self.closest_edge_coordinate(self.right_coordinate)
         self.bottom_right_edge_coordinate = self.closest_edge_coordinate(self.bottom_right_coordinate)
-        self.bottom_coord_and_colour = (self.bottom_coordinate, self.bottom_colour)
 
     def set_edge_colours(self):
         if self.CURRENT_RENDER_MODE == RenderMode.PIXELATED:
@@ -212,9 +213,9 @@ class Cell:
 
     def coordinate_colour(self, horizontal_index, vertical_index):
         return np.array([
-            (horizontal_index/40 + vertical_index/20 + self.base_colour[0])%1,
-            (horizontal_index/40  + vertical_index/20 + self.base_colour[1])%1,
-            (horizontal_index/40 + vertical_index/20 + self.base_colour[2])%1,
+            (horizontal_index/self.HORIZONTAL_COLOUR_MULTIPLIER + vertical_index/self.VERTICAL_COLOUR_MULTIPLIER + self.base_colour[0])%1,
+            (horizontal_index/self.HORIZONTAL_COLOUR_MULTIPLIER + vertical_index/self.VERTICAL_COLOUR_MULTIPLIER + self.base_colour[1])%1,
+            (horizontal_index/self.HORIZONTAL_COLOUR_MULTIPLIER + vertical_index/self.VERTICAL_COLOUR_MULTIPLIER + self.base_colour[2])%1,
             self.alpha
         ])
 
