@@ -1,53 +1,37 @@
 import moderngl
 import numpy as np
 import math
+from enum import Enum
+
+class RenderMode(Enum):
+    SMOOTH = 1
+    PIXELATED = 2
 
 class Cell:
     WIDTH_PLOT = 1
     MIDDLE_PLOT = 0
+    CURRENT_RENDER_MODE = RenderMode.SMOOTH
 
     def __init__(self, coordinate, row, next_row, column_index, row_index, mesh):
         self.base_colour = mesh.base_colour
         self.alpha = mesh.alpha
 
         self.coordinate = coordinate
-        self.primary_colour = self.coordinate_colour(row_index, column_index)
-        self.primary_coord_and_colour = (self.coordinate, self.primary_colour)
-        
         self.right_coordinate = row[column_index + 1]
-        self.right_colour = self.coordinate_colour(row_index, column_index + 1)
-        self.right_coord_and_colour = (self.right_coordinate, self.right_colour)
-
         self.bottom_right_coordinate = next_row[column_index + 1]
-        self.bottom_right_colour = self.coordinate_colour(row_index + 1, column_index + 1)
-        self.bottom_right_coord_and_colour = (self.bottom_right_coordinate, self.bottom_right_colour)
-
         self.bottom_coordinate = next_row[column_index]
-        self.bottom_colour = self.coordinate_colour(row_index + 1, column_index)
-        self.bottom_coord_and_colour = (self.bottom_coordinate, self.bottom_colour)
 
-        self.close_edge_coordinate = self.closest_edge_coordinate(coordinate)
+        self.set_vertex_colours(row_index, column_index)
+
+        self.primary_edge_coordinate = self.closest_edge_coordinate(coordinate)
         self.centre_line_coordinate = self.centre_line_coordinate()
 
         self.is_split_horizontal = self.is_split_by_edge(self.right_coordinate)
         self.is_split_bottom = self.is_split_by_edge(self.bottom_coordinate)
-
+        
         if self.is_split_bottom or self.is_split_horizontal:
-            self.bottom_edge_coordinate = self.closest_edge_coordinate(self.bottom_coordinate)
-            self.right_edge_coordinate = self.closest_edge_coordinate(self.right_coordinate)
-            self.bottom_right_edge_coordinate = self.closest_edge_coordinate(self.bottom_right_coordinate)
-
-            self.bottom_edge_colour = (self.primary_colour + self.bottom_colour) / 2
-            self.close_edge_colour = (self.primary_colour + self.right_colour) / 2
-            self.bottom_right_edge_colour = (self.right_colour + self.bottom_right_colour) / 2
-            self.right_edge_colour = (self.primary_colour + self.right_colour) / 2
-
-            self.bottom_edge_coord_and_colour = (self.bottom_edge_coordinate, self.bottom_edge_colour)
-            self.close_edge_coord_and_colour = (self.close_edge_coordinate, self.close_edge_colour)
-            self.bottom_right_edge_coord_and_colour = (self.bottom_right_edge_coordinate, self.bottom_right_edge_colour)
-            self.right_edge_coord_and_colour = (self.right_edge_coordinate, self.right_edge_colour)
-
-        self.colour = self.coordinate_colour(row_index, column_index)
+            self.set_edge_coords()
+            self.set_edge_colours()
 
     def triangle(self, current_coord_and_colour, next_coord_and_colour, vert_coord_and_colour):
         """
@@ -75,6 +59,46 @@ class Cell:
 
         return vertices
 
+    def set_vertex_colours(self, row_index, column_index):
+        if self.CURRENT_RENDER_MODE == RenderMode.PIXELATED:
+            self.primary_colour = self.coordinate_colour(row_index, column_index)
+            self.right_colour = self.primary_colour
+            self.bottom_right_colour = self.primary_colour
+            self.bottom_colour = self.primary_colour
+        else:
+            self.primary_colour = self.coordinate_colour(row_index, column_index)
+            self.right_colour = self.coordinate_colour(row_index, column_index + 1)
+            self.bottom_right_colour = self.coordinate_colour(row_index + 1, column_index + 1)
+            self.bottom_colour = self.coordinate_colour(row_index + 1, column_index)
+
+        self.primary_coord_and_colour = (self.coordinate, self.primary_colour)
+        self.bottom_coord_and_colour = (self.bottom_coordinate, self.bottom_colour)
+        self.right_coord_and_colour = (self.right_coordinate, self.right_colour)
+        self.bottom_right_coord_and_colour = (self.bottom_right_coordinate, self.bottom_right_colour)
+
+    def set_edge_coords(self):
+        self.bottom_edge_coordinate = self.closest_edge_coordinate(self.bottom_coordinate)
+        self.right_edge_coordinate = self.closest_edge_coordinate(self.right_coordinate)
+        self.bottom_right_edge_coordinate = self.closest_edge_coordinate(self.bottom_right_coordinate)
+        self.bottom_coord_and_colour = (self.bottom_coordinate, self.bottom_colour)
+
+    def set_edge_colours(self):
+        if self.CURRENT_RENDER_MODE == RenderMode.PIXELATED:
+            self.bottom_edge_colour = self.primary_colour
+            self.primary_edge_colour = self.primary_colour
+            self.bottom_right_edge_colour = self.primary_colour
+            self.right_edge_colour = self.primary_colour
+        else:
+            self.bottom_edge_colour = (self.primary_colour + self.bottom_colour) / 2
+            self.primary_edge_colour = (self.primary_colour + self.right_colour) / 2
+            self.bottom_right_edge_colour = (self.right_colour + self.bottom_right_colour) / 2
+            self.right_edge_colour = (self.primary_colour + self.right_colour) / 2
+
+        self.bottom_edge_coord_and_colour = (self.bottom_edge_coordinate, self.bottom_edge_colour)
+        self.primary_edge_coord_and_colour = (self.primary_edge_coordinate, self.primary_edge_colour)
+        self.bottom_right_edge_coord_and_colour = (self.bottom_right_edge_coordinate, self.bottom_right_edge_colour)
+        self.right_edge_coord_and_colour = (self.right_edge_coordinate, self.right_edge_colour)
+
     def is_split_by_edge(self, next_coordinate):
         """
         Generate mesh for upper triangle from coordinate rows.
@@ -83,7 +107,7 @@ class Cell:
         :return: None
         """
 
-        distance_coordinate_edge = np.linalg.norm(self.coordinate - self.close_edge_coordinate)
+        distance_coordinate_edge = np.linalg.norm(self.coordinate - self.primary_edge_coordinate)
         distance_centre_line = np.linalg.norm(self.coordinate - self.centre_line_coordinate)
         distance_between_coordinates = np.linalg.norm(self.coordinate - next_coordinate)
 
@@ -97,7 +121,7 @@ class Cell:
         :return: None
         """
 
-        if single_coordinate[0] > 0:
+        if single_coordinate[0] > self.MIDDLE_PLOT:
             edge_coordinate = np.array([ self.WIDTH_PLOT, single_coordinate[1] ])
         else:
             edge_coordinate = np.array([ -self.WIDTH_PLOT, single_coordinate[1] ])
@@ -133,7 +157,7 @@ class Cell:
             ),
             self.triangle(
                 self.primary_coord_and_colour, 
-                self.close_edge_coord_and_colour, 
+                self.primary_edge_coord_and_colour, 
                 self.bottom_edge_coord_and_colour,
             ),
             self.triangle(
@@ -152,7 +176,7 @@ class Cell:
         return [
             self.triangle(
                 self.primary_coord_and_colour,
-                self.close_edge_coord_and_colour,
+                self.primary_edge_coord_and_colour,
                 self.right_edge_coord_and_colour
             ),
             self.triangle(
