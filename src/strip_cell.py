@@ -20,6 +20,7 @@ class StripCell:
 
         self.coordinate = coordinate
         self.bottom_coordinate = next_row[column_index]
+        self.bottom_right_coordinate = next_row[column_index + 1]
         self.right_coordinate = row[column_index + 1]
 
         self.set_vertex_colours(row_index, column_index)
@@ -31,9 +32,8 @@ class StripCell:
         self.is_split_bottom = self.is_split_by_edge(self.bottom_coordinate)
         
         if self.is_split_bottom or self.is_split_horizontal:
-            pass
-            # self.set_edge_coords()
-            # self.set_edge_colours()
+            self.set_edge_coords()
+            self.set_edge_colours()
 
     def cell_vertices(self, current_coord_and_colour, next_coord_and_colour):
         """
@@ -79,6 +79,8 @@ class StripCell:
             self.primary_edge_colour = self.primary_colour
             self.bottom_right_edge_colour = self.primary_colour
             self.right_edge_colour = self.primary_colour
+            self.right_colour = self.primary_colour
+            self.bottom_right_colour = self.primary_colour
         else:
             self.bottom_edge_colour = (self.primary_colour + self.bottom_colour) / 2
             self.primary_edge_colour = (self.primary_colour + self.right_colour) / 2
@@ -89,6 +91,8 @@ class StripCell:
         self.primary_edge_coord_and_colour = (self.primary_edge_coordinate, self.primary_edge_colour)
         self.bottom_right_edge_coord_and_colour = (self.bottom_right_edge_coordinate, self.bottom_right_edge_colour)
         self.right_edge_coord_and_colour = (self.right_edge_coordinate, self.right_edge_colour)
+        self.right_coord_and_colour = (self.right_coordinate, self.right_colour)
+        self.bottom_right_coord_and_colour = (self.bottom_right_coordinate, self.bottom_right_colour)
 
     def is_split_by_edge(self, next_coordinate):
         """
@@ -133,61 +137,33 @@ class StripCell:
         if self.is_split_horizontal and self.is_split_bottom:
             print("Coordinate not rendered as split by both edges")
         elif self.is_split_horizontal:
-            # return self.horizontal_split_squares()
-            print("Horizontal split not implemented")
-            return None, True
+            return self.horizontal_split_squares(), True
         elif self.is_split_bottom:
-            # return self.vertical_split_squares()
-            print("Vertical split not implemented")
-            return None, True
+            return self.vertical_split_squares(), True
         else:
             return self.no_split_square()
 
     def horizontal_split_squares(self):
         return [
-            self.triangle(
-                self.primary_coord_and_colour, 
-                self.bottom_coord_and_colour,
-                self.bottom_edge_coord_and_colour
-            ),
-            self.triangle(
-                self.primary_coord_and_colour, 
-                self.primary_edge_coord_and_colour, 
-                self.bottom_edge_coord_and_colour,
-            ),
-            self.triangle(
-               self.right_coord_and_colour,
-               self.right_edge_coord_and_colour,
-               self.bottom_right_edge_coord_and_colour
-            ),
-            self.triangle(
-                self.right_coord_and_colour,
-                self.bottom_right_coord_and_colour,
-                self.bottom_right_edge_coord_and_colour
-            )
+            [
+                self.cell_vertices(self.primary_coord_and_colour, self.bottom_coord_and_colour),
+                self.cell_vertices(self.primary_edge_coord_and_colour, self.bottom_edge_coord_and_colour)
+            ],
+            [ 
+                self.cell_vertices(self.right_edge_coord_and_colour, self.bottom_right_edge_coord_and_colour),
+                self.cell_vertices(self.right_coord_and_colour, self.bottom_right_coord_and_colour)
+            ]
         ]
 
     def vertical_split_squares(self):
         return [
-            self.triangle(
+            self.cell_vertices(
                 self.primary_coord_and_colour,
                 self.primary_edge_coord_and_colour,
-                self.right_edge_coord_and_colour
-            ),
-            self.triangle(
-                self.primary_coord_and_colour,
-                self.right_coord_and_colour,
-                self.right_edge_coord_and_colour
             ),
             self.triangle(
                 self.bottom_coord_and_colour,
                 self.bottom_edge_coord_and_colour,
-                self.bottom_right_edge_coord_and_colour
-            ),
-            self.triangle(
-                self.bottom_coord_and_colour,
-                self.bottom_right_coord_and_colour,
-                self.bottom_right_edge_coord_and_colour
             )
         ]
 

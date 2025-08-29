@@ -22,11 +22,10 @@ class Strip:
                 if is_split:
                     strip_vertices.extend(coord_vertices[0])
 
-                    split_strip_vertices = [coord_vertices[1]]
+                    split_vertices = coord_vertices[1]
 
-                    split_strip_vertices.extend(self.generated_vertices(row[column_index:], next_row[column_index:], row_index, mesh))
-
-                    return [strip_vertices, split_strip_vertices]
+                    split_vertices.extend(self.generate_vertices(row[column_index + 1:], next_row[column_index + 1:], row_index, mesh)[0])
+                    return [strip_vertices, split_vertices]
                 else:
                     strip_vertices.extend(coord_vertices)
 
@@ -35,7 +34,7 @@ class Strip:
     def generate_triangle_strip(self, vertices):
         triangle_strips = []
 
-        for vertex_set in vertices:
+        for index, vertex_set in enumerate(vertices):
             triangle_strip = np.array(vertex_set, dtype='f4').ravel()
             triangle_strips.append(triangle_strip)
 
