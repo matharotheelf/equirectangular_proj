@@ -57,9 +57,9 @@ class Scene(mglw.WindowConfig):
                 void main() {
                     gl_Position = vec4(in_vert, 0.0, 1.0);
 
-                    float red = mod((in_color[0] + time), 1.0);
-                    float green = mod((in_color[1] + time), 1.0); 
-                    float blue = mod((in_color[2] + time), 1.0);
+                    float red = sin(360 * (in_color[0] + time/10));
+                    float green = sin(360 *(in_color[1] + time/10)); 
+                    float blue = sin(360 * (in_color[2] + time/10));
 
                     v_color = vec4(red, green, blue, in_color[3]);
                 }
@@ -86,6 +86,9 @@ class Scene(mglw.WindowConfig):
 
         my_cube = Cube(colours=colours)
         self.meshes = [Mesh(self.program, panel) for panel in my_cube.panels]
+        #
+        # my_oct = Octohedron(colours=colours)
+        # self.meshes = [Mesh(self.program, panel) for panel in my_oct.panels]
 
     def on_render(self, time: float, frametime: float):
         self.ctx.clear()
@@ -93,13 +96,13 @@ class Scene(mglw.WindowConfig):
         self.ctx.gc()
         self.ctx.enable(self.ctx.DEPTH_TEST)
 
-        # print(f"Time: {time}, Frame Time: {frametime}")
+        print(f"Time: {time}, Frame Time: {frametime}")
 
         for mesh in self.meshes:
             mesh.render(time)
         #
-        # if self.screenshot_active:
-        #     screenshot.create(self.ctx.fbo)
-        #     self.screenshot_active = False
+        if self.screenshot_active:
+            screenshot.create(self.ctx.fbo)
+            self.screenshot_active = False
 
 Scene.run()

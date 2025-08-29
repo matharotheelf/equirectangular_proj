@@ -11,8 +11,8 @@ class Cell:
     WIDTH_PLOT = 1
     MIDDLE_PLOT = 0
     CURRENT_RENDER_MODE = RenderMode.PIXELATED
-    HORIZONTAL_COLOUR_MULTIPLIER = 5
-    VERTICAL_COLOUR_MULTIPLIER = 1
+    HORIZONTAL_COLOUR_MULTIPLIER = 5000
+    VERTICAL_COLOUR_MULTIPLIER = 2000
 
     def __init__(self, coordinate, row, next_row, column_index, row_index, mesh):
         self.base_colour = mesh.base_colour
