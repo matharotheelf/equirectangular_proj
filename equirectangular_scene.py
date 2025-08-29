@@ -57,9 +57,9 @@ class Scene(mglw.WindowConfig):
                 void main() {
                     gl_Position = vec4(in_vert, 0.0, 1.0);
 
-                    float red = sin(360 * (in_color[0] + time/10));
-                    float green = sin(360 *(in_color[1] + time/10)); 
-                    float blue = sin(360 * (in_color[2] + time/10));
+                    float red = mod((in_color[0] + time*2), 1);
+                    float green = mod((in_color[1] + time*2), 1); 
+                    float blue = mod((in_color[2] + time*2), 1);
 
                     v_color = vec4(red, green, blue, in_color[3]);
                 }
