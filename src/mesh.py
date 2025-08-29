@@ -3,6 +3,7 @@ import numpy as np
 import math
 
 from src.cell import Cell
+from src.strip import Strip
 
 class Mesh:
     WIDTH_PLOT = 1
@@ -36,10 +37,14 @@ class Mesh:
         for row_index, row in enumerate(coordinate_rows[:-1]):
             next_row = coordinate_rows[row_index + 1]
 
-            for column_index, coordinate in enumerate(row[:-1]):
-                coordinate_cell = Cell(coordinate, row, next_row, column_index, row_index, self)
-                coordinate_triangles = coordinate_cell.generate_triangles()
+            strip = Strip(row, next_row, row_index, self)
 
-                if coordinate_triangles is not None:
-                    triangle_mesh.extend(coordinate_triangles)
+            triangle_mesh.extend(strip.triangles)
+
+            # for column_index, coordinate in enumerate(row[:-1]):
+            #     coordinate_cell = Cell(coordinate, row, next_row, column_index, row_index, self)
+            #     coordinate_triangles = coordinate_cell.generate_triangles()
+            #
+            #     if coordinate_triangles is not None:
+            #         triangle_mesh.extend(coordinate_triangles)
         return triangle_mesh
