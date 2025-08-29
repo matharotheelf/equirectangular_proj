@@ -11,10 +11,10 @@ class StripCell:
     WIDTH_PLOT = 1
     MIDDLE_PLOT = 0
     CURRENT_RENDER_MODE = RenderMode.PIXELATED
-    HORIZONTAL_COLOUR_MULTIPLIER = 5000
-    VERTICAL_COLOUR_MULTIPLIER = 2000
+    HORIZONTAL_COLOUR_MULTIPLIER = 500
+    VERTICAL_COLOUR_MULTIPLIER = 200
 
-    def __init__(self, coordinate, row, next_row, column_index, row_index, base_colour, alpha):
+    def __init__(self, coordinate, row, next_row, column_index, row_index, base_colour, alpha, shift_index=0):
         self.base_colour = base_colour
         self.alpha = alpha
 
@@ -23,7 +23,7 @@ class StripCell:
         self.bottom_right_coordinate = next_row[column_index + 1]
         self.right_coordinate = row[column_index + 1]
 
-        self.set_vertex_colours(row_index, column_index)
+        self.set_vertex_colours(row_index, column_index, shift_index)
 
         self.primary_edge_coordinate = self.closest_edge_coordinate(coordinate)
         self.centre_line_coordinate = self.centre_line_coordinate()
@@ -57,9 +57,9 @@ class StripCell:
 
         return vertices
 
-    def set_vertex_colours(self, row_index, column_index):
+    def set_vertex_colours(self, row_index, column_index, shift_index):
         if self.CURRENT_RENDER_MODE == RenderMode.PIXELATED:
-            self.primary_colour = self.coordinate_colour(row_index, column_index)
+            self.primary_colour = self.coordinate_colour(row_index, column_index + shift_index)
             self.bottom_colour = self.primary_colour
         else:
             self.primary_colour = self.coordinate_colour(row_index, column_index)

@@ -11,11 +11,11 @@ class Strip:
 
         self.triangles = self.generate_triangle_strip(vertices)
 
-    def generate_vertices(self, row, next_row, row_index, mesh):
+    def generate_vertices(self, row, next_row, row_index, mesh, start_index=0):
         strip_vertices = []
 
         for column_index, coordinate in enumerate(row[:-1]):
-            coordinate_cell = StripCell(coordinate, row, next_row, column_index, row_index, mesh.base_colour, mesh.alpha)
+            coordinate_cell = StripCell(coordinate, row, next_row, column_index, row_index, mesh.base_colour, mesh.alpha, shift_index=start_index)
             coord_vertices, is_split = coordinate_cell.generate_vertices()
 
             if coord_vertices is not None:
@@ -24,7 +24,7 @@ class Strip:
 
                     split_vertices = coord_vertices[1]
 
-                    split_vertices.extend(self.generate_vertices(row[column_index + 1:], next_row[column_index + 1:], row_index, mesh)[0])
+                    split_vertices.extend(self.generate_vertices(row[column_index + 1:], next_row[column_index + 1:], row_index, mesh, start_index = column_index + 1)[0])
                     return [strip_vertices, split_vertices]
                 else:
                     strip_vertices.extend(coord_vertices)
