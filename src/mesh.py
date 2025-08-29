@@ -23,7 +23,7 @@ class Mesh:
             vao = self.ctx.vertex_array(self.program, [vbo.bind('in_vert', 'in_color', layout='2f 4f')])
 
             vao.program['time'] = currentTime / 10.0
-            vao.render()
+            vao.render(mode=moderngl.TRIANGLE_STRIP)
 
     def generate_mesh(self, coordinate_rows):
         """
