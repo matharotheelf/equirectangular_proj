@@ -98,10 +98,10 @@ class Scene(mglw.WindowConfig):
 
         print(f"Time: {time}, Frame Time: {frametime}")
 
-        # for mesh in self.meshes:
-        #     mesh.render(time)
-
-        self.meshes[3].render(time)
+        for mesh in self.meshes:
+            mesh.render(time)
+        #
+        # self.meshes[3].render(time)
 
         if self.screenshot_active:
             screenshot.create(self.ctx.fbo)
