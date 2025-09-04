@@ -77,18 +77,18 @@ class Scene(mglw.WindowConfig):
 
         colours = []
 
-        for _index in range(6):
+        for _index in range(8):
             currentColourShiftR = random.random();
             currentColourShiftG = random.random();
             currentColourShiftB = random.random();
 
             colours.append((currentColourShiftR, currentColourShiftG, currentColourShiftB))
 
-        my_cube = Cube(colours=colours)
-        self.meshes = [Mesh(self.program, panel) for panel in my_cube.panels]
-        #
-        # my_oct = Octohedron(colours=colours)
-        # self.meshes = [Mesh(self.program, panel) for panel in my_oct.panels]
+        # my_cube = Cube(colours=colours)
+        # self.meshes = [Mesh(self.program, panel) for panel in my_cube.panels]
+
+        self.my_oct = Octohedron(colours=colours)
+        self.meshes = [Mesh(self.program, panel) for panel in self.my_oct.panels]
 
     def on_render(self, time: float, frametime: float):
         self.ctx.clear()
@@ -98,9 +98,11 @@ class Scene(mglw.WindowConfig):
 
         print(f"Time: {time}, Frame Time: {frametime}")
 
-        for mesh in self.meshes:
-            mesh.render(time)
-        #
+        # for mesh in self.meshes:
+        #     mesh.render(time)
+
+        self.meshes[3].render(time)
+
         if self.screenshot_active:
             screenshot.create(self.ctx.fbo)
             self.screenshot_active = False

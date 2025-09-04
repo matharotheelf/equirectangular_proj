@@ -122,6 +122,9 @@ fabric.properties
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/vcs.xml
 
+# Images
+images/
+
 # Environments
 .env
 .venv

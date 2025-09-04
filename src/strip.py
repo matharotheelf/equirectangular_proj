@@ -14,7 +14,7 @@ class Strip:
     def generate_vertices(self, row, next_row, row_index, mesh, start_index=0):
         strip_vertices = []
 
-        for column_index, coordinate in enumerate(row[:-1]):
+        for column_index, coordinate in enumerate(row):
             coordinate_cell = StripCell(coordinate, row, next_row, column_index, row_index, mesh.base_colour, mesh.alpha, shift_index=start_index)
             coord_vertices, is_split = coordinate_cell.generate_vertices()
 
@@ -35,7 +35,10 @@ class Strip:
         triangle_strips = []
 
         for index, vertex_set in enumerate(vertices):
-            triangle_strip = np.array(vertex_set, dtype='f4').ravel()
-            triangle_strips.append(triangle_strip)
+            try:
+                triangle_strip = np.array(vertex_set, dtype='f4').ravel()
+                triangle_strips.append(triangle_strip)
+            except:
+                breakpoint()
 
         return triangle_strips

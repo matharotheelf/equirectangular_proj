@@ -27,6 +27,7 @@ class Panel:
         lon = np.degrees(np.arctan2(coordinate[0], coordinate[2]))/self.LONGITUDE_RANGE
         lat = np.degrees(np.arcsin(
             np.clip(coordinate[1] / np.sqrt(coordinate[0] ** 2 + coordinate[1] ** 2 + coordinate[2] ** 2), -1, 1)))/self.LATITUDE_RANGE
+
         return np.array([lon, lat])
 
     # Function to return the rotated coordinates using euler
