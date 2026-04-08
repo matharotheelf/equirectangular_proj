@@ -47,19 +47,31 @@ class CoordinateGrid:
         :return: coordinates
         """
 
-        # Create initial meshgrid in xz plane with panel width and height
-        x_initial = np.linspace(-self.width / 2, self.width / 2,  self.RESOLUTION)
-        z_initial = np.linspace(-self.height / 2, self.height / 2, self.RESOLUTION)
+        x_initial = np.linspace(- self.width / 2, self.width / 2,  self.RESOLUTION)
+        z_initial = np.linspace(- self.height / 2, self.height / 2, self.RESOLUTION)
 
-        # Convert meshgrid into coordinate array
-        x_grid, z_grid = np.meshgrid(x_initial, z_initial)
-        grid_array = np.column_stack((x_grid.ravel(), z_grid.ravel()))
+        coords = []
 
-        grid_rows = self.split_grid_array_to_rows(grid_array)
+        for z_value in z_initial:
+            # For each row, x runs from 0 to width - y (to stay inside the triangle)
+            max_x = (z_value + self.height/2) * self.width/(2 * self.height)
+            min_x = (- self.height/2 - z_value) * self.width/(2 * self.height)
+            shaped_x_row = x_initial[self.triangle_mask(x_initial, min_x, max_x)]
 
-        shaped_grid_rows = self.triangle_coordinate_rows(grid_rows)
+            if len(shaped_x_row) == 0:
+                continue
 
-        return shaped_grid_rows
+            shaped_z_row = np.full(len(shaped_x_row), z_value)
+            shaped_2d_coordinates = np.column_stack((shaped_x_row, shaped_z_row))
+            shaped_coordinates = np.insert(shaped_2d_coordinates, 1, 0, axis = 1)
+
+            coords.append(shaped_coordinates)
+
+        return coords
+
+    def triangle_mask(self, x_value, min_x, max_x):
+        return (x_value >= min_x) & (x_value <= max_x)
+
 
     def split_grid_array_to_rows(self, grid_array):
         rows = []
